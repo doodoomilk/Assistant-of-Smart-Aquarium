@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".temperature"
+    android:background="#E4F5FF"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txt_temp"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:text="溫度資料"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_tempup"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="加熱"
+            android:textSize="18dp"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/btn_tempdown"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="降溫"
+            android:textSize="18dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/refresh_layout">
+
+        <ScrollView
+            android:id="@+id/scroll_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+            <TableLayout
+                android:id="@+id/table_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
+                android:layout_gravity="center_horizontal"/>
+
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>

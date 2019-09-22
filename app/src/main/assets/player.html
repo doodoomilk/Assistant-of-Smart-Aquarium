@@ -1,0 +1,184 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://vjs.zencdn.net/6.6.3/video-js.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.408.0.min.js"></script>
+        <title>Amazon Kinesis Video Streams HLS Viewer</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1 style="margin: 20px 0;">你的魚在幹嘛勒~</h1>
+            <div class="row">
+                <div class="col-md">
+                    <div id="playerContainer">
+                        <video id="hlsjs" class="player" controls autoplay></video>
+                        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+                    </div>
+                    <div id="Button">
+                        <button id="start" type="submit" class="btn btn-primary">Start Playback</button>
+                    </div>
+                    <h3 style="margin-top: 20px;">Logs</h3>
+                    <div class="card bg-light mb-3">
+                        <pre id="logs" class="card-body text-monospace" style="font-family: monospace; white-space: pre-wrap;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            configureLogging();
+
+            $('#start').click(function() {
+                var streamName = "CloudProg";
+                var playbackMode = "LIVE";
+                var fragmentSelectorType = "SERVER_TIMESTAMP";
+                var containerFormat = "FRAGMENTED_MP4";
+                var discontinuityMode = "ALWAYS";
+                var displayFragmentTimestamp = "NEVER";
+
+                // Step 1: Configure SDK Clients
+                var options = {
+                    accessKeyId: "AKIAYKJZBFNGQWAKFPC6",
+                    secretAccessKey: "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",
+                    sessionToken: undefined,
+                    region: "us-east-1",
+                    endpoint: undefined
+                }
+
+                var kinesisVideo = new AWS.KinesisVideo(options);
+                var kinesisVideoArchivedContent = new AWS.KinesisVideoArchivedMedia(options);
+
+                // Step 2: Get a data endpoint for the stream
+                console.log('Fetching data endpoint');
+                kinesisVideo.getDataEndpoint({
+                    StreamName: streamName,
+                    APIName: "GET_HLS_STREAMING_SESSION_URL"
+                }, function(err, response) {
+                    if (err) { return console.error(err); }
+                    console.log('Data endpoint: ' + response.DataEndpoint);
+                    kinesisVideoArchivedContent.endpoint = new AWS.Endpoint(response.DataEndpoint);
+
+                    // Step 3: Get an HLS Streaming Session URL
+                    console.log('Fetching HLS Streaming Session URL');
+                    kinesisVideoArchivedContent.getHLSStreamingSessionURL({
+                        StreamName: streamName,
+                        PlaybackMode: playbackMode,
+                        HLSFragmentSelector: {
+                            FragmentSelectorType: fragmentSelectorType,
+                            TimestampRange: playbackMode === "LIVE" ? undefined : {
+                                StartTimestamp: new Date($('#startTimestamp').val()),
+                                EndTimestamp: new Date($('#endTimestamp').val())
+                            }
+                        },
+                        ContainerFormat: containerFormat,
+                        DiscontinuityMode: discontinuityMode,
+                        DisplayFragmentTimestamp: displayFragmentTimestamp,
+                        MaxMediaPlaylistFragmentResults: undefined,
+                        Expires: undefined
+                    }, function(err, response) {
+                        if (err) { return console.error(err); }
+                        console.log('HLS Streaming Session URL: ' + response.HLSStreamingSessionURL);
+
+                        // Step 4: Give the URL to the video player.
+                        var playerElement = $('#hlsjs');
+                        playerElement.show();
+                        var player = new Hls();
+                        console.log('Created HLS.js Player');
+
+                        player.loadSource(response.HLSStreamingSessionURL);
+                        player.attachMedia(playerElement[0]);
+                        console.log('Set player source');
+
+                        player.on(Hls.Events.MANIFEST_PARSED, function() {
+                            video.play();
+                            console.log('Starting playback');
+                        });
+                    });
+                });
+
+                $('.player').hide();
+            });
+
+            // Read/Write all of the fields to/from localStorage so that fields are not lost on refresh.
+            [
+                'player',
+                'region',
+                'accessKeyId',
+                'secretAccessKey',
+                'sessionToken',
+                'endpoint',
+                'streamName',
+                'playbackMode',
+                'startTimestamp',
+                'endTimestamp',
+                'fragmentSelectorType',
+                'containerFormat',
+                'discontinuityMode',
+                'displayFragmentTimestamp',
+                'maxMediaPlaylistFragmentResults',
+                'expires'
+            ].forEach(function(field) {
+                var id = "#" + field;
+
+                // Read field from localStorage
+                try {
+                    var localStorageValue = localStorage.getItem(field);
+                    if (localStorageValue) { $(id).val(localStorageValue); }
+                } catch (e) { /* Don't use localStorage */ }
+
+                // Write field to localstorage on change event
+                $(id).change(function() {
+                    try {
+                        localStorage.setItem(field, $(id).val());
+                    } catch (e) { /* Don't use localStorage */ }
+                });
+            });
+
+            // Setup disabled/enabled state for timestamp fields
+            $('#playbackMode').change(function() {
+                updateTimestampFieldState();
+            });
+            updateTimestampFieldState();
+
+            // Initially hide the player elements
+            $('.player').hide();
+
+            function configureLogging() {
+                console._error = console.error;
+                console.error = function(messages) {
+                    log('ERROR', Array.prototype.slice.call(arguments));
+                    console._error.apply(this, arguments);
+                }
+
+                console._log = console.log;
+                console.log = function(messages) {
+                    log('INFO', Array.prototype.slice.call(arguments));
+                    console._log.apply(this, arguments);
+                }
+
+                function log(level, messages) {
+                    var text = '';
+                    for (message of messages) {
+                        if (typeof message === 'object') { message = JSON.stringify(message, null, 2); }
+                        text += ' ' + message;
+                    }
+                    $('#logs').append($('<div>').text('[' + level + ']' + text + '\n'));
+                }
+            }
+
+            function updateTimestampFieldState() {
+                var isLive = $('#playbackMode').val() === 'LIVE';
+                $('#startTimestamp').prop('disabled', isLive);
+                $('#endTimestamp').prop('disabled', isLive);
+            }
+
+            console.log("Page loaded")
+        </script>
+        <style>
+            #playerContainer, .player { width: 100%; height: auto; min-height: 400px; background-color: black; }
+            .vjs-big-play-button { display: none !important; }
+        </style>
+    </body>
+</html>

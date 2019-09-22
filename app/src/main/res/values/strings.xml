@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">水族助手</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_login_enter">Login</string>
+
+    <!-- Strings related to menu
+    <string name="description_Temperature">Temperature is ?</string>
+    <string name="description_Turbid">Turbid is ?</string>
+    <string name="description_Level">Level is ?</string>
+    <string name="description_Setting">Just setting</string>
+    -->
+
+
+</resources>
