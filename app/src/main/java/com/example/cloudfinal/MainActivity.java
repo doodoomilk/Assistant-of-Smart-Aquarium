@@ -1,5 +1,9 @@
 package com.example.cloudfinal;
 
+/*
+主畫面設定
+*/
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

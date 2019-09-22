@@ -1,4 +1,9 @@
 package com.example.cloudfinal;
+/*
+主畫面的排版設定
+CardView
+RecyclerView
+*/
 
 /*
 Make sure to implement Recyclerview required methods

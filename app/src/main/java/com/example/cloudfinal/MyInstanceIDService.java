@@ -1,5 +1,10 @@
 package com.example.cloudfinal;
-
+/*
+設定跳出通知
+Notification
+NotificationManager
+FirebaseMessagingService
+*/
 
 import android.app.Notification;
 import android.app.NotificationManager;

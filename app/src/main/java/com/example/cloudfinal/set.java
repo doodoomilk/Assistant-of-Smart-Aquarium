@@ -1,5 +1,11 @@
 package com.example.cloudfinal;
 
+/*
+看即時串流
+WebSettings
+*/
+
+
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaCodec;

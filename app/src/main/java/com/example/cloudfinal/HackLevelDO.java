@@ -1,5 +1,10 @@
 package com.example.cloudfinal;
 
+/*
+從dynamoDB取出水位資料
+存入特定的變數
+*/
+
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;

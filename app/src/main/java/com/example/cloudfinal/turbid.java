@@ -1,5 +1,9 @@
 package com.example.cloudfinal;
-
+/*
+顯示水質資料
+AmazonDynamoDBClient
+CloudLogic- Create components of api request(API gateway要用的)
+*/
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.widget.SwipeRefreshLayout;

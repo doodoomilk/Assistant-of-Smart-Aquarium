@@ -1,5 +1,8 @@
 package com.example.cloudfinal;
-
+/*
+設定認證身份
+initialize AWS Mobile Client
+*/
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
